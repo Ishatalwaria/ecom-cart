@@ -9,7 +9,9 @@ import Cart from './pages/Cart'
 import Navbar from './components/Navbar'
 import Orders from './pages/Orders'
 import Checkout from './pages/Checkout'
+import Profile from './pages/Profile'
 import PrivateRoute from './components/PrivateRoute'
+
 const App = () => {
   const location = useLocation();
   const hideNavbar = location.pathname === '/login' || location.pathname === '/register';
@@ -17,17 +19,16 @@ const App = () => {
   return (
     <>
       {!hideNavbar && <Navbar />}
-  <Routes>
-    <Route path="/" element={<Home />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
-    <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
-    <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
-    <Route path="/product/:id" element={<ProductDetail />} />  
-    
-  </Routes>
-
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
+        <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
+        <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/product/:id" element={<ProductDetail />} />  
+      </Routes>
     </>
   );
 };

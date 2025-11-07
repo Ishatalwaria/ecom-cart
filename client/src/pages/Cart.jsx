@@ -1,17 +1,52 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './cart.css';
 
 const Cart = () => {
-  const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, clearCart, loading, error, userId } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  useEffect(() => {
+    console.log("Cart component - User data:", user);
+    console.log("Cart component - UserId from context:", userId);
+  }, [user, userId]);
+
+  const handleContinueShopping = () => {
+    navigate('/');
+  };
+
+  const handleCheckout = () => {
+    navigate('/checkout');
+  };
+
+  if (loading) {
+    return <div className="cart-container"><p>Loading your cart...</p></div>;
+  }
+
+  if (error) {
+    return (
+      <div className="cart-container">
+        <p className="error-message">{error}</p>
+        <p>Debug: User ID = {userId || 'Not found'}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="cart-container">
       <h2>Your Cart</h2>
       {cart.length === 0 ? (
-        <p>Your cart is empty</p>
+        <div className="empty-cart">
+          <p>Your cart is empty</p>
+          <button className="continue-shopping" onClick={handleContinueShopping}>
+            Continue Shopping
+          </button>
+        </div>
       ) : (
         <>
           {cart.map(item => (
@@ -31,7 +66,15 @@ const Cart = () => {
           ))}
           <div className="cart-summary">
             <h3>Total: ₹{total}</h3>
-            <button className="clear" onClick={clearCart}>Clear Cart</button>
+            <div className="cart-actions">
+              <button className="clear" onClick={clearCart}>Clear Cart</button>
+              <button className="continue-shopping" onClick={handleContinueShopping}>
+                Continue Shopping
+              </button>
+              <button className="checkout" onClick={handleCheckout}>
+                Proceed to Checkout
+              </button>
+            </div>
           </div>
         </>
       )}

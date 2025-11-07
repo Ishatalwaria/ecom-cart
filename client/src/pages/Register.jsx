@@ -8,23 +8,32 @@ const Register = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const navigate = useNavigate()
 
   const handleRegister = async (e) => {
     e.preventDefault()
+    setError('')
+    setSuccess('')
+    
     try {
       const res = await axios.post('http://localhost:5000/api/auth/register', {
-      name,
-      email,
-      password
-    });
+        name,
+        email,
+        password
+      });
 
-    const user = res.data.user;
-    localStorage.setItem("userId", user._id); // ✅ store userId
-    console.log("Signed up:", user);
-    navigate('/login')
+      // The register endpoint only returns a success message, not user data
+      console.log("Registration successful:", res.data.message);
+      setSuccess('Registration successful! Redirecting to login...');
+      
+      // Wait 2 seconds before redirecting to login page
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed.')
+      console.error("Registration error:", err);
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     }
   }
 
@@ -32,6 +41,7 @@ const Register = () => {
     <div className="auth-container">
       <h2>Register</h2>
       {error && <p className="error">{error}</p>}
+      {success && <p className="success">{success}</p>}
       <form onSubmit={handleRegister}>
         <input
           type="text"
