@@ -50,6 +50,9 @@ npm run dev
  Home Page — browse and search products
   <img width="1868" height="853" alt="Screenshot 2025-11-08 001414" src="https://github.com/user-attachments/assets/4f89ffe6-759f-4df0-a943-7c79254a7980" />
   <img width="1861" height="843" alt="Screenshot 2025-11-08 001719" src="https://github.com/user-attachments/assets/0a158e96-eb23-4433-9804-e726bdf04973" />
+  <img width="1787" height="844" alt="Screenshot 2025-11-08 003717" src="https://github.com/user-attachments/assets/9bcd8e89-d1b0-4d87-88aa-0b4e18b48d71" />
+  <img width="1722" height="866" alt="Screenshot 2025-11-08 003809" src="https://github.com/user-attachments/assets/02f4da7c-6ac4-49bc-8f41-3b2e3af7142f" />
+
  
  Product Page — view details, add to cart or wishlist
   <img width="1806" height="855" alt="Screenshot 2025-11-08 001839" src="https://github.com/user-attachments/assets/0c404400-2b7f-47d3-89e2-81bcd6823cba" />
