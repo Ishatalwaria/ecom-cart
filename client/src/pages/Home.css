@@ -1,0 +1,78 @@
+.home-container {
+    background-color: #f8f9fa;
+  }
+  
+  /* Hero Section */
+  .hero-section {
+    background: url('https://images.unsplash.com/photo-1523275335684-37898b6baf30') center/cover no-repeat;
+    color: white;
+    padding: 100px 20px;
+    text-align: center;
+    position: relative;
+  }
+  
+  .hero-section::after {
+    content: "";
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    inset: 0;
+  }
+  
+  .hero-text {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .auth-buttons .btn {
+    margin-top: 20px;
+    font-size: 16px;
+  }
+  
+  /* Product Cards */
+  .product-card {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .product-card:hover {
+    transform: scale(1.03);
+  }
+  
+  .card-title {
+    font-weight: 600;
+  }
+  
+  .card-img-top {
+    height: 220px;
+    object-fit: contain;
+  }
+  
+.hero {
+    height: 60vh;
+    background: url('/hero.jpg') no-repeat center center/cover;
+    color: white;
+    position: relative;
+  }
+  
+  .hero-content {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    border-radius: 12px;
+  }
+  
+  .category-box {
+    transition: all 0.3s;
+  }
+  .category-box:hover {
+    background-color: #ffe082;
+    cursor: pointer;
+  }
+  
+  .testimonials p {
+    font-style: italic;
+    font-size: 1.1rem;
+  }
+  input.form-control-lg {
+    border-radius: 20px;
+    padding-left: 20px;
+  }
+  

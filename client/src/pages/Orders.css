@@ -1,0 +1,182 @@
+/* Orders.css */
+
+/* Container for the orders section */
+.orders-container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+.order-card {
+  background-color: #fff;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.order-card h5 {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.order-card p {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.order-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.order-actions button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Style for the "Track Order" button */
+.order-actions button:first-child {
+  background-color: #007bff;
+  color: white;
+}
+
+.order-actions button:first-child:hover {
+  background-color: #0056b3;
+}
+
+/* Style for the "Cancel Order" button */
+.order-actions button:last-child {
+  background-color: #dc3545;
+  color: white;
+}
+
+.order-actions button:last-child:hover {
+  background-color: #c82333;
+}
+
+/* Empty state when no orders are found */
+.orders-container p {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #888;
+}
+
+/* Responsive Styles */
+
+/* For smaller screens (Mobile) */
+@media (max-width: 576px) {
+  .orders-container {
+    width: 95%;
+    padding: 15px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .order-card {
+    padding: 10px;
+  }
+
+  .order-card h5 {
+    font-size: 1.1rem;
+  }
+
+  .order-card p {
+    font-size: 0.9rem;
+  }
+
+  .order-actions button {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+
+  .order-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .order-actions button {
+    margin: 5px 0;
+    width: 100%;
+  }
+}
+
+/* For medium screens (Tablets) */
+@media (max-width: 768px) {
+  .orders-container {
+    width: 90%;
+    padding: 18px;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  .order-card h5 {
+    font-size: 1.2rem;
+  }
+
+  .order-card p {
+    font-size: 0.95rem;
+  }
+
+  .order-actions button {
+    font-size: 0.95rem;
+    padding: 9px 14px;
+  }
+
+  .order-actions {
+    flex-direction: row;
+  }
+}
+
+/* For large screens (Desktop and above) */
+@media (min-width: 992px) {
+  .orders-container {
+    width: 75%;
+    padding: 25px;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  .order-card {
+    padding: 20px;
+  }
+
+  .order-card h5 {
+    font-size: 1.25rem;
+  }
+
+  .order-card p {
+    font-size: 1rem;
+  }
+
+  .order-actions button {
+    font-size: 1rem;
+    padding: 10px 15px;
+  }
+
+  .order-actions {
+    flex-direction: row;
+  }
+}
