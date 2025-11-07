@@ -10,6 +10,7 @@ import Navbar from './components/Navbar'
 import Orders from './pages/Orders'
 import Checkout from './pages/Checkout'
 import Profile from './pages/Profile'
+import Admin from './pages/Admin'
 import PrivateRoute from './components/PrivateRoute'
 
 const App = () => {
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/orders/:id" element={<PrivateRoute><Orders /></PrivateRoute>} />
         <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
         <Route path="/product/:id" element={<ProductDetail />} />  
       </Routes>
     </>

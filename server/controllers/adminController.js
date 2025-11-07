@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+const User = require("../models/User");
 
 // Get all orders (Admin)
 exports.getAllOrders = async (req, res) => {
@@ -26,6 +27,17 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
+// Create product
+exports.createProduct = async (req, res) => {
+  try {
+    const product = new Product(req.body);
+    const savedProduct = await product.save();
+    res.status(201).json(savedProduct);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Delete product
 exports.deleteProduct = async (req, res) => {
   try {
@@ -45,6 +57,56 @@ exports.updateProduct = async (req, res) => {
       { new: true }
     );
     res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Get all users (Admin only)
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Add a user to admin role
+exports.addAdminRole = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { isAdmin: true },
+      { new: true }
+    ).select("-password");
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Remove a user from admin role
+exports.removeAdminRole = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { isAdmin: false },
+      { new: true }
+    ).select("-password");
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.status(200).json(updatedUser);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

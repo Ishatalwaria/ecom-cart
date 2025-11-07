@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './Profile.css';
 
@@ -317,6 +317,11 @@ const Profile = () => {
           >
             {isEditing ? 'Cancel' : 'Edit Profile'}
           </button>
+          {user.isAdmin && (
+            <Link to="/admin" className="btn btn-info mx-2">
+              <i className="bi bi-gear-fill me-1"></i>Admin Dashboard
+            </Link>
+          )}
           <button className="btn btn-danger" onClick={handleLogout}>
             Logout
           </button>
