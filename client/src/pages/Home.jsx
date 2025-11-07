@@ -1,20 +1,129 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import './Home.css'
 
 const Home = () => {
   const [products, setProducts] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+  
+  // Category icons mapping
+  const categoryIcons = {
+    'Electronics': 'bi-laptop',
+    'Clothing': 'bi-tag',
+    'Home': 'bi-house',
+    'Beauty': 'bi-droplet',
+    'Sports': 'bi-trophy'
+  }
+  
+  // Get the current category from URL params
+  const currentCategory = searchParams.get('category') || ''
+  
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products')
-      .then(res => setProducts(res.data))
-      .catch(err => console.error(err))
-  }, [])
-
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+    // Initialize search term from URL
+    const searchFromUrl = searchParams.get('search') || ''
+    if (searchFromUrl) {
+      setSearchTerm(searchFromUrl)
+    }
+  }, [searchParams])
+  
+  // Fetch products with filtering
+  const fetchProducts = async () => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      // Build query parameters
+      let url = 'http://localhost:5000/api/products'
+      const params = new URLSearchParams()
+      
+      // Get search and category from URL params
+      const urlCategory = searchParams.get('category')
+      const urlSearch = searchParams.get('search')
+      
+      if (urlCategory) {
+        params.append('category', urlCategory)
+      }
+      
+      if (urlSearch) {
+        params.append('search', urlSearch)
+      }
+      
+      // Add params to URL if any exist
+      if (params.toString()) {
+        url += '?' + params.toString()
+      }
+      
+      console.log('Fetching products from:', url)
+      const res = await axios.get(url)
+      
+      if (res.data && Array.isArray(res.data)) {
+        console.log(`Loaded ${res.data.length} products`)
+        setProducts(res.data)
+      } else {
+        console.error('Invalid response format:', res.data)
+        setProducts([])
+        setError('Received invalid data from server')
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err)
+      setError('Failed to load products. Please try again.')
+      setProducts([])
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  // Fetch products when search params change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    fetchProducts()
+  }, [searchParams])
+  
+  // Handle search submission
+  const handleSearch = (e) => {
+    e.preventDefault()
+    
+    // Update URL with search params
+    const params = new URLSearchParams(searchParams)
+    
+    if (searchTerm) {
+      params.set('search', searchTerm)
+    } else {
+      params.delete('search')
+    }
+    
+    setSearchParams(params)
+  }
+  
+  // Handle category click
+  const handleCategoryClick = (category) => {
+    console.log(`Category clicked: ${category}`)
+    
+    // Update URL with category param
+    const params = new URLSearchParams(searchParams)
+    
+    if (category === currentCategory) {
+      // If clicking the same category, clear the filter
+      console.log('Clearing category filter')
+      params.delete('category')
+    } else {
+      console.log(`Setting category filter to: ${category}`)
+      params.set('category', category)
+    }
+    
+    setSearchParams(params)
+  }
+  
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchTerm('')
+    navigate('/')
+  }
 
   return (
     <div className="home-page">
@@ -38,17 +147,61 @@ const Home = () => {
       <div className="container mt-4">
         <div className="row justify-content-center">
           <div className="col-md-8">
-            <input
-              type="text"
-              placeholder="Search for products..."
-              className="form-control form-control-lg shadow-sm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <form onSubmit={handleSearch}>
+              <div className="input-group">
+                <input
+                  type="text"
+                  placeholder="Search for products..."
+                  className="form-control form-control-lg shadow-sm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <button type="submit" className="btn btn-primary">
+                  <i className="bi bi-search"></i>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
 
+      {/* Active Filters */}
+      {(currentCategory || searchParams.get('search')) && (
+        <div className="container mt-3">
+          <div className="d-flex align-items-center justify-content-center">
+            <div className="active-filters">
+              {currentCategory && (
+                <span className="badge bg-primary me-2">
+                  Category: {currentCategory}
+                  <button 
+                    className="btn-close btn-close-white ms-2" 
+                    onClick={() => handleCategoryClick(currentCategory)}>
+                  </button>
+                </span>
+              )}
+              {searchParams.get('search') && (
+                <span className="badge bg-primary me-2">
+                  Search: {searchParams.get('search')}
+                  <button 
+                    className="btn-close btn-close-white ms-2" 
+                    onClick={() => {
+                      setSearchTerm('');
+                      const params = new URLSearchParams(searchParams);
+                      params.delete('search');
+                      setSearchParams(params);
+                    }}>
+                  </button>
+                </span>
+              )}
+              <button 
+                className="btn btn-sm btn-outline-secondary" 
+                onClick={clearFilters}>
+                Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Categories Carousel */}
       <section className="categories container my-5">
@@ -56,8 +209,11 @@ const Home = () => {
         <div className="row text-center">
           {['Electronics', 'Clothing', 'Home', 'Beauty', 'Sports'].map((category, i) => (
             <div className="col-6 col-md-2 mb-3" key={i}>
-              <div className="category-box p-3 bg-light rounded shadow-sm">
-                <i className="bi bi-bag-fill fs-2 text-primary"></i>
+              <div 
+                className={`category-box p-3 rounded shadow-sm ${currentCategory === category ? 'bg-primary text-white' : 'bg-light'}`}
+                onClick={() => handleCategoryClick(category)}
+              >
+                <i className={`bi ${categoryIcons[category] || 'bi-bag-fill'} fs-2 ${currentCategory === category ? 'text-white' : 'text-primary'}`}></i>
                 <p className="mt-2">{category}</p>
               </div>
             </div>
@@ -86,10 +242,18 @@ const Home = () => {
 
       {/* All Products */}
       <section className="container my-5">
-        <h2 className="mb-4">All Products</h2>
+        <h2 className="mb-4">
+          {currentCategory ? `${currentCategory} Products` : 'All Products'}
+          {loading && <small className="ms-2 text-muted">(Loading...)</small>}
+        </h2>
+        
+        {error && (
+          <div className="alert alert-danger">{error}</div>
+        )}
+        
         <div className="row">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map(product => (
+          {products.length > 0 ? (
+            products.map(product => (
               <div className="col-sm-6 col-md-4 col-lg-3 mb-4" key={product._id}>
                 <div className="card h-100">
                   <img src={product.image} className="card-img-top" alt={product.name} />
@@ -101,18 +265,19 @@ const Home = () => {
                 </div>
               </div>
             ))
-          ) : searchTerm ? (
+          ) : loading ? (
             <div className="col-12 text-center py-5">
-              <h3>No products match your search</h3>
-              <p>Try a different search term or browse all products below.</p>
-              <button className="btn btn-outline-primary" onClick={() => setSearchTerm('')}>
-                Show All Products
-              </button>
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
             </div>
           ) : (
             <div className="col-12 text-center py-5">
-              <h3>No products available</h3>
-              <p>Check back later for new products.</p>
+              <h3>No products found</h3>
+              <p>Try different search criteria or browse all products.</p>
+              <button className="btn btn-outline-primary" onClick={clearFilters}>
+                Show All Products
+              </button>
             </div>
           )}
         </div>

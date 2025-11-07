@@ -61,18 +61,68 @@
   
   .category-box {
     transition: all 0.3s;
-  }
-  .category-box:hover {
-    background-color: #ffe082;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .category-box:hover {
+    background-color: #e9ecef !important;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+  }
+  
+  .category-box.bg-primary:hover {
+    background-color: #0d6efd !important;
+    transform: translateY(-5px);
   }
   
   .testimonials p {
     font-style: italic;
     font-size: 1.1rem;
   }
+  
   input.form-control-lg {
     border-radius: 20px;
     padding-left: 20px;
+  }
+  
+  /* Active Filters */
+  .active-filters {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 1rem 0;
+  }
+  
+  .active-filters .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .active-filters .btn-close {
+    font-size: 0.7rem;
+    padding: 0.15rem;
+  }
+  
+  .active-filters .btn-outline-secondary {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Search bar styling */
+  .input-group .form-control-lg {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  
+  .input-group .btn-primary {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
   
