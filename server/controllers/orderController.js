@@ -4,7 +4,15 @@ const User = require("../models/User");
 exports.placeOrder = async (req, res) => {
   try {
     console.log("Received order data:", req.body);
-    const { userId, products, address, paymentMode, amount } = req.body;
+    const { 
+      userId, 
+      products, 
+      address, 
+      paymentMode, 
+      amount, 
+      contactPhone, 
+      contactEmail 
+    } = req.body;
 
     // Validate if required fields are present
     if (!userId || !products || !address || !paymentMode || !amount) {
@@ -34,6 +42,8 @@ exports.placeOrder = async (req, res) => {
       paymentStatus: paymentMode === "online" ? "Pending" : "Paid",
       paymentMode: paymentMode === "online" ? "Online" : "COD",
       status: "Placed",
+      contactPhone,
+      contactEmail
     });
 
     // Save the new order to the database

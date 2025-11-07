@@ -1,10 +1,13 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from "./AuthContext";
+import { useToast } from "./ToastContext";
+
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
+  const { showSuccess, showError, showCartNotification } = useToast();
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -96,6 +99,7 @@ export const CartProvider = ({ children }) => {
     } catch (error) {
       console.error("Fetch cart failed:", error);
       setError("Failed to fetch cart");
+      showError("Unable to load your cart. Please try again.");
       setCart([]);
     } finally {
       setLoading(false);
@@ -108,6 +112,7 @@ export const CartProvider = ({ children }) => {
     if (!currentUserId) {
       console.error("User ID missing while adding to cart");
       setError("You must be logged in to add items to cart");
+      showError("Please log in to add items to your cart");
       return;
     }
 
@@ -148,9 +153,11 @@ export const CartProvider = ({ children }) => {
               : item
           )
         );
+        showCartNotification(`${product.name} quantity updated (${quantity}) in cart`);
       } else {
         // Add new item
         setCart(prevCart => [...prevCart, { ...product, quantity: 1 }]);
+        showCartNotification(`${product.name} added to your cart!`);
       }
       
       // Then refresh from server to ensure consistency
@@ -158,6 +165,7 @@ export const CartProvider = ({ children }) => {
     } catch (err) {
       console.error("Error adding to cart:", err);
       setError("Failed to add item to cart");
+      showError("Failed to add item to cart. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -169,8 +177,13 @@ export const CartProvider = ({ children }) => {
     if (!currentUserId) {
       console.error("User ID missing while updating quantity");
       setError("You must be logged in to update items");
+      showError("Please log in to update your cart");
       return;
     }
+    
+    // Find the product name for the notification
+    const product = cart.find(item => item._id === productId);
+    const productName = product ? product.name : 'Item';
     
     if (quantity < 1) {
       return removeFromCart(productId);
@@ -203,12 +216,14 @@ export const CartProvider = ({ children }) => {
       );
       
       console.log("Update quantity response:", response.data);
+      showSuccess(`Updated ${productName} quantity to ${quantity}`);
       
       // Refetch cart from server to ensure consistency
       fetchCart();
     } catch (err) {
       console.error("Error updating quantity:", err);
       setError("Failed to update item quantity");
+      showError("Failed to update quantity. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -220,8 +235,13 @@ export const CartProvider = ({ children }) => {
     if (!currentUserId) {
       console.error("User ID missing while removing from cart");
       setError("You must be logged in to remove items");
+      showError("Please log in to update your cart");
       return;
     }
+    
+    // Find the product name for the notification
+    const product = cart.find(item => item._id === productId);
+    const productName = product ? product.name : 'Item';
     
     try {
       setLoading(true);
@@ -237,12 +257,14 @@ export const CartProvider = ({ children }) => {
       });
       
       console.log("Remove from cart response:", response.data);
+      showSuccess(`${productName} removed from cart`);
       
       // Refetch cart from server to ensure consistency
       fetchCart();
     } catch (err) {
       console.error("Error removing from cart:", err);
       setError("Failed to remove item from cart");
+      showError("Failed to remove item. Please try again.");
       // Revert optimistic update on error
       fetchCart();
     } finally {
@@ -256,6 +278,7 @@ export const CartProvider = ({ children }) => {
     if (!currentUserId) {
       console.error("User ID missing while clearing cart");
       setError("You must be logged in to clear cart");
+      showError("Please log in to clear your cart");
       return;
     }
     
@@ -274,9 +297,11 @@ export const CartProvider = ({ children }) => {
       );
       
       console.log("Clear cart response:", response.data);
+      showSuccess("Your cart has been cleared");
     } catch (err) {
       console.error("Error clearing cart:", err);
       setError("Failed to clear cart");
+      showError("Failed to clear cart. Please try again.");
       // Revert optimistic update on error
       fetchCart();
     } finally {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import axios from 'axios';
 import './Admin.css';
 import { getImageUrl } from '../utils/imageUtils';
@@ -8,13 +9,12 @@ import { getImageUrl } from '../utils/imageUtils';
 const Admin = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { showSuccess, showError, showInfo } = useToast();
   const [activeTab, setActiveTab] = useState('products');
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [productForm, setProductForm] = useState({
@@ -31,6 +31,7 @@ const Admin = () => {
     if (user) {
       if (!user.isAdmin) {
         // Redirect non-admin users
+        showError("Access denied. Admin privileges required.");
         navigate('/');
         return;
       }
@@ -38,7 +39,7 @@ const Admin = () => {
     } else if (!loading) {
       navigate('/login');
     }
-  }, [user, loading, navigate, activeTab]);
+  }, [user, loading, navigate, activeTab, showError]);
 
   const fetchData = () => {
     if (activeTab === 'products') {
@@ -52,12 +53,11 @@ const Admin = () => {
 
   const fetchProducts = async () => {
     setIsLoading(true);
-    setError('');
     try {
       const response = await axios.get('http://localhost:5000/api/products');
       setProducts(response.data);
     } catch (err) {
-      setError('Failed to fetch products: ' + (err.response?.data?.message || err.message));
+      showError('Failed to fetch products: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +65,6 @@ const Admin = () => {
 
   const fetchOrders = async () => {
     setIsLoading(true);
-    setError('');
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
@@ -74,7 +73,7 @@ const Admin = () => {
       );
       setOrders(response.data);
     } catch (err) {
-      setError('Failed to fetch orders: ' + (err.response?.data?.message || err.message));
+      showError('Failed to fetch orders: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +81,6 @@ const Admin = () => {
 
   const fetchUsers = async () => {
     setIsLoading(true);
-    setError('');
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
@@ -91,7 +89,7 @@ const Admin = () => {
       );
       setUsers(response.data);
     } catch (err) {
-      setError('Failed to fetch users: ' + (err.response?.data?.message || err.message));
+      showError('Failed to fetch users: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsLoading(false);
     }
@@ -137,25 +135,21 @@ const Admin = () => {
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     
-    setError('');
-    setSuccess('');
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
         `http://localhost:5000/api/admin/products/${productId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setSuccess('Product deleted successfully');
+      showSuccess('Product deleted successfully');
       fetchProducts();
     } catch (err) {
-      setError('Failed to delete product: ' + (err.response?.data?.message || err.message));
+      showError('Failed to delete product: ' + (err.response?.data?.message || err.message));
     }
   };
 
   const handleSubmitProduct = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
     
     try {
       const token = localStorage.getItem('token');
@@ -174,7 +168,7 @@ const Admin = () => {
           productData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccess('Product updated successfully');
+        showSuccess('Product updated successfully');
       } else {
         // Create new product - Use admin endpoint instead of regular products endpoint
         await axios.post(
@@ -182,19 +176,17 @@ const Admin = () => {
           productData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccess('Product created successfully');
+        showSuccess('Product created successfully');
       }
       
       resetProductForm();
       fetchProducts();
     } catch (err) {
-      setError('Failed to save product: ' + (err.response?.data?.message || err.message));
+      showError('Failed to save product: ' + (err.response?.data?.message || err.message));
     }
   };
 
   const handleUpdateOrderStatus = async (orderId, status) => {
-    setError('');
-    setSuccess('');
     try {
       const token = localStorage.getItem('token');
       await axios.put(
@@ -202,10 +194,10 @@ const Admin = () => {
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setSuccess(`Order ${orderId.substring(0, 8)} updated to ${status}`);
+      showSuccess(`Order ${orderId.substring(0, 8)} updated to ${status}`);
       fetchOrders();
     } catch (err) {
-      setError('Failed to update order: ' + (err.response?.data?.message || err.message));
+      showError('Failed to update order: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -229,9 +221,8 @@ const Admin = () => {
   };
   
   const uploadImage = async (file) => {
-    setError('');
-    setSuccess('');
     setIsLoading(true);
+    showInfo('Uploading image...');
     
     try {
       // Create form data to send the file
@@ -260,10 +251,10 @@ const Admin = () => {
           cloudinary_id: response.data.public_id, // Store Cloudinary ID
           _previewImage: null // Clear preview as we have the real URL now
         });
-        setSuccess('Image uploaded successfully to Cloudinary!');
+        showSuccess('Image uploaded successfully to Cloudinary!');
       }
     } catch (err) {
-      setError('Failed to upload image: ' + (err.response?.data?.message || err.message));
+      showError('Failed to upload image: ' + (err.response?.data?.message || err.message));
       // Keep the preview but don't update the image field
     } finally {
       setIsLoading(false);
@@ -299,9 +290,6 @@ const Admin = () => {
   return (
     <div className="admin-container">
       <h2>Admin Dashboard</h2>
-      
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
       
       <div className="admin-tabs">
         <button 
@@ -568,32 +556,22 @@ const Admin = () => {
                             <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                             <td>₹{order.amount || order.totalPrice}</td>
                             <td>
-                              <span className={`badge status-${order.status?.toLowerCase() || 'pending'}`}>
-                                {order.status || 'Pending'}
+                              <span className={`badge status-${order.status?.toLowerCase() || 'placed'}`}>
+                                {order.status || 'Placed'}
                               </span>
                             </td>
                             <td>
-                              <div className="dropdown">
-                                <button 
-                                  className="btn btn-sm btn-outline-primary dropdown-toggle" 
-                                  type="button" 
-                                  data-bs-toggle="dropdown"
-                                >
-                                  Update Status
-                                </button>
-                                <ul className="dropdown-menu">
-                                  {['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(status => (
-                                    <li key={status}>
-                                      <button 
-                                        className="dropdown-item" 
-                                        onClick={() => handleUpdateOrderStatus(order._id, status)}
-                                      >
-                                        {status}
-                                      </button>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
+                              <select 
+                                className="form-select form-select-sm" 
+                                value={order.status || 'Placed'}
+                                onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
+                              >
+                                {['Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'].map(status => (
+                                  <option key={status} value={status}>
+                                    {status}
+                                  </option>
+                                ))}
+                              </select>
                             </td>
                           </tr>
                         ))}

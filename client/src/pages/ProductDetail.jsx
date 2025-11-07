@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useCart } from '../context/CartContext'
 import './ProductDetail.css' // ✅ Import styles
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { getImageUrl } from '../utils/imageUtils'
 
 const ProductDetail = () => {
@@ -13,6 +14,7 @@ const ProductDetail = () => {
   const [showGoToCart, setShowGoToCart] = useState(false)
   const { addToCart, cart } = useCart()
   const { user, loading } = useAuth()
+  const { showError, showInfo } = useToast()
   const navigate = useNavigate()
 
   // Debug user authentication state
@@ -47,20 +49,22 @@ const ProductDetail = () => {
         } else {
           console.error("No product data returned.")
           setError("Product not found")
+          showError("Product not found")
         }
       })
       .catch(err => {
         console.error("Error fetching product:", err)
         setError("Error loading product")
+        showError("Error loading product details")
       })
-  }, [id])
+  }, [id, showError])
 
   const handleAddToCart = () => {
     // Check localStorage directly as a backup
     const hasStoredUser = localStorage.getItem('user') || localStorage.getItem('userId');
     
     if (!user && !hasStoredUser) {
-      alert("Please log in to add items to your cart")
+      showInfo("Please log in to add items to your cart")
       navigate('/login')
       return
     }
@@ -70,7 +74,7 @@ const ProductDetail = () => {
       console.log("Current user:", user)
       addToCart(product)
       setShowGoToCart(true)
-      alert("Product added to cart!")
+      // Toast notification is now handled in the CartContext
     }
   }
 

@@ -28,6 +28,12 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  contactPhone: {
+    type: String
+  },
+  contactEmail: {
+    type: String
+  },
   status: {
     type: String,
     enum: ["Placed", "Processing", "Shipped", "Out for Delivery", "Delivered", "Cancelled"],
