@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { useWishlist } from '../context/WishlistContext'
 import './Navbar.css'
 
 const Navbar = () => {
   const { cart } = useCart();
   const { user, logout } = useAuth();
+  const { wishlist } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +16,8 @@ const Navbar = () => {
   
   // Calculate total items in cart - only when user is authenticated
   const totalItems = user ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
+  // Calculate total wishlist items
+  const wishlistCount = wishlist?.length || 0;
   
   // Handle scroll effect
   useEffect(() => {
@@ -94,6 +98,21 @@ const Navbar = () => {
                     {totalItems > 0 && (
                       <span className="cart-badge">
                         {totalItems}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link 
+                    to="/wishlist" 
+                    className={`nav-link ${isActive('/wishlist') ? 'active' : ''}`} 
+                    onClick={closeMenu}
+                  >
+                    <i className="fas fa-heart"></i>
+                    <span>Wishlist</span>
+                    {wishlistCount > 0 && (
+                      <span className="cart-badge">
+                        {wishlistCount}
                       </span>
                     )}
                   </Link>

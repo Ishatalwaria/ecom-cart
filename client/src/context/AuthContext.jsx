@@ -1,28 +1,55 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const loadStoredUser = () => {
+    const loadStoredUser = async () => {
       setLoading(true);
       try {
         // Try to get token - if no token, user is not authenticated
         const token = localStorage.getItem('token');
         if (!token) {
           console.log("No token found, user is not authenticated");
+          setIsAuthenticated(false);
           setLoading(false);
           return;
         }
         
-        // Try to get user from localStorage
+        // Try to verify token with the server
+        try {
+          const response = await axios.get('http://localhost:5000/api/auth/verify-token', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          
+          if (response.data.isValid) {
+            console.log("Token verified with server, user is authenticated");
+            setUser(response.data.user);
+            setIsAuthenticated(true);
+          } else {
+            console.log("Token is invalid according to server");
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setIsAuthenticated(false);
+          }
+        } catch (verifyError) {
+          console.error("Error verifying token:", verifyError);
+          // Token verification failed, consider token invalid
+          setIsAuthenticated(false);
+        }
+        
+        // Try to get user from localStorage as fallback
         const storedUser = localStorage.getItem('user');
         
-        if (storedUser) {
+        if (storedUser && !user) {
           try {
             const parsedUser = JSON.parse(storedUser);
             console.log("Loaded user from localStorage");
@@ -33,14 +60,17 @@ export const AuthProvider = ({ children }) => {
             }
             
             setUser(parsedUser);
+            setIsAuthenticated(true);
           } catch (parseError) {
             console.error("Error parsing user data:", parseError);
             // Invalid user data, clear it
             localStorage.removeItem('user');
+            setIsAuthenticated(false);
           }
         }
       } catch (error) {
         console.error("Error loading user from localStorage:", error);
+        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
@@ -48,6 +78,37 @@ export const AuthProvider = ({ children }) => {
     
     loadStoredUser();
   }, []);
+
+  const verifyToken = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log("No token to verify");
+        return false;
+      }
+
+      const response = await axios.get('http://localhost:5000/api/auth/verify-token', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.data.isValid) {
+        if (!user) {
+          setUser(response.data.user);
+        }
+        setIsAuthenticated(true);
+        return true;
+      } else {
+        logout();
+        return false;
+      }
+    } catch (error) {
+      console.error("Token verification failed:", error);
+      logout();
+      return false;
+    }
+  };
 
   const login = (userData) => {
     if (!userData) {
@@ -79,6 +140,7 @@ export const AuthProvider = ({ children }) => {
     
     console.log("Setting user in context:", normalizedUser);
     setUser(normalizedUser);
+    setIsAuthenticated(true);
     
     try {
       localStorage.setItem('user', JSON.stringify(normalizedUser));
@@ -89,12 +151,13 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    setIsAuthenticated(false);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, isAuthenticated, verifyToken }}>
       {children}
     </AuthContext.Provider>
   );
