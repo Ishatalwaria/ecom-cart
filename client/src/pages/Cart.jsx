@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import './cart.css';
+import './Cart.css';
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart, clearCart, loading, error, userId } = useCart();
