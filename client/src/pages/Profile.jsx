@@ -196,8 +196,10 @@ const Profile = () => {
     try {
       // Create a copy of form data with the formatted address
       const userData = {
-        ...formData,
-        address: composeAddress()  // Store the structured address
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: composeAddress()
       };
       
       const token = localStorage.getItem('token');
@@ -207,26 +209,51 @@ const Profile = () => {
         return;
       }
       
-      console.log("Updating profile for user:", user._id);
-      console.log("Update data:", userData);
+      // Ensure we have a valid user ID
+      if (!user || !user._id) {
+        console.error("User ID missing in profile data");
+        setError("User data invalid. Please log in again.");
+        setTimeout(() => navigate('/login'), 2000);
+        return;
+      }
+      
+      // Convert to string to ensure proper format
+      const userId = user._id.toString();
+      console.log("Updating profile for user:", userId);
+      console.log("Profile update data:", userData);
       
       const res = await axios.put(
-        `http://localhost:5000/api/users/${user._id}`,
+        `http://localhost:5000/api/users/${userId}`,
         userData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       console.log("Profile update response:", res.data);
       
-      // Update the user in context and localStorage
+      // Update both the auth context and localStorage
       const updatedUser = { ...user, ...res.data };
       login(updatedUser);
+      
+      // Make sure localStorage has the updated user data
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       
       setSuccess('Profile updated successfully!');
       setIsEditing(false);
     } catch (err) {
       console.error('Update profile error:', err);
-      setError(err.response?.data?.message || 'Failed to update profile. Please try again.');
+      if (err.response && err.response.status === 404) {
+        // Specific error for user not found
+        setError('User profile not found. Please try logging in again.');
+        setTimeout(() => {
+          logout();
+          navigate('/login');
+        }, 3000);
+      } else if (err.response && err.response.status === 400) {
+        // Handle specific validation errors
+        setError(err.response.data.message || 'Validation error. Please check your inputs.');
+      } else {
+        setError('Failed to update profile. Please try again later.');
+      }
     }
   };
 

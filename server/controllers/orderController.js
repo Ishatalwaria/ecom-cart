@@ -102,12 +102,114 @@ exports.trackOrder = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to track this order" });
     }
     
-    res.json({
+    // Prepare detailed tracking information
+    const trackingInfo = {
+      orderId: order._id,
       status: order.status,
       estimatedDelivery: order.estimatedDelivery || "In process",
-    });
+      trackingNumber: order.trackingNumber || "Not available",
+      deliveryPartner: order.deliveryPartner || "FastShip",
+      trackingHistory: order.trackingDetails || [],
+      currentLocation: order.trackingDetails && order.trackingDetails.length > 0 
+        ? order.trackingDetails[order.trackingDetails.length - 1].location 
+        : "Processing center",
+      paymentStatus: order.paymentStatus,
+      orderDate: order.createdAt
+    };
+    
+    res.json(trackingInfo);
   } catch (err) {
     console.error("Error tracking order:", err);
     res.status(500).json({ message: "Error tracking order: " + err.message });
   }
 };
+
+exports.getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    
+    // Verify user is authorized to view this order
+    if (req.user._id.toString() !== order.userId.toString() && !req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized to view this order" });
+    }
+    
+    res.json(order);
+  } catch (err) {
+    console.error("Error fetching order:", err);
+    res.status(500).json({ message: "Error fetching order: " + err.message });
+  }
+};
+
+// Add a new endpoint to update order status with location (admin only)
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { status, location, description } = req.body;
+    
+    // Verify user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: "Not authorized. Admin access required." });
+    }
+    
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    
+    // Update order status
+    order.status = status || order.status;
+    
+    // Add new tracking detail
+    const newTrackingDetail = {
+      status: status,
+      location: location || "Warehouse",
+      timestamp: new Date(),
+      description: description || getStatusDescription(status)
+    };
+    
+    // Initialize tracking details array if needed
+    if (!order.trackingDetails) {
+      order.trackingDetails = [];
+    }
+    
+    // Add new tracking detail
+    order.trackingDetails.push(newTrackingDetail);
+    
+    // Update estimated delivery for specific statuses
+    if (status === "Shipped") {
+      // 3 days from now
+      const date = new Date();
+      order.estimatedDelivery = new Date(date.setDate(date.getDate() + 3));
+    } else if (status === "Out for Delivery") {
+      // Today
+      order.estimatedDelivery = new Date();
+    }
+    
+    const updatedOrder = await order.save();
+    
+    res.json({
+      message: "Order status updated successfully",
+      order: updatedOrder
+    });
+  } catch (err) {
+    console.error("Error updating order status:", err);
+    res.status(500).json({ message: "Error updating order: " + err.message });
+  }
+};
+
+// Helper function for status descriptions
+function getStatusDescription(status) {
+  const descriptions = {
+    "Placed": "Order has been placed successfully",
+    "Processing": "Order is being processed at our warehouse",
+    "Shipped": "Order has been shipped and is on the way",
+    "Out for Delivery": "Order is out for delivery and will be delivered today",
+    "Delivered": "Order has been delivered successfully",
+    "Cancelled": "Order has been cancelled"
+  };
+  
+  return descriptions[status] || "Status updated";
+}

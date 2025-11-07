@@ -7,26 +7,33 @@ const bcrypt = require("bcryptjs");
 // @access  Private
 exports.updateUser = async (req, res) => {
   try {
+    const userId = req.params.id;
     console.log("Update user request:", {
-      userId: req.params.id,
+      userId: userId,
       requestBody: req.body,
       authenticatedUser: req.user ? req.user._id : 'None'
     });
     
+    // Validate userId
+    if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
+      console.log("Invalid user ID format:", userId);
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+    
     const { name, email, phone, address } = req.body;
     
     // Check if user exists
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(userId);
     if (!user) {
-      console.log("User not found:", req.params.id);
+      console.log("User not found:", userId);
       return res.status(404).json({ message: "User not found" });
     }
 
     // Check if user is authorized to update this profile
-    if (req.user._id.toString() !== req.params.id && !req.user.isAdmin) {
+    if (req.user._id.toString() !== userId && !req.user.isAdmin) {
       console.log("Authorization failed:", {
         requestUser: req.user._id.toString(),
-        targetUser: req.params.id
+        targetUser: userId
       });
       return res.status(401).json({ message: "Not authorized to update this profile" });
     }

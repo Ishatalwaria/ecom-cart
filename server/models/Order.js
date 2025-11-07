@@ -30,17 +30,17 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Placed", "Shipped", "Delivered", "Cancelled"],
+    enum: ["Placed", "Processing", "Shipped", "Out for Delivery", "Delivered", "Cancelled"],
     default: "Placed"
   },
   paymentStatus: {
     type: String,
-    enum: ["Paid", "Pending"],
+    enum: ["Paid", "Pending", "Failed", "Refunded"],
     default: "Pending"
   },
   paymentMode: {
     type: String,
-    enum: ["COD", "Online"],
+    enum: ["COD", "Online", "Card", "UPI"],
     default: "COD"
   },
   estimatedDelivery: {
@@ -50,7 +50,66 @@ const orderSchema = new mongoose.Schema({
       const now = new Date();
       return new Date(now.setDate(now.getDate() + 5));
     }
+  },
+  trackingDetails: [
+    {
+      status: {
+        type: String,
+        required: true
+      },
+      location: String,
+      timestamp: {
+        type: Date,
+        default: Date.now
+      },
+      description: String
+    }
+  ],
+  trackingNumber: {
+    type: String,
+    default: function() {
+      // Generate a random tracking number
+      return 'TRK' + Math.floor(100000 + Math.random() * 900000);
+    }
+  },
+  deliveryPartner: {
+    type: String,
+    default: "FastShip"
   }
 }, { timestamps: true });
+
+// Add a pre-save hook to update tracking details when status changes
+orderSchema.pre('save', function(next) {
+  // If this is a new order or status has been modified
+  if (this.isNew || this.isModified('status')) {
+    const newStatus = {
+      status: this.status,
+      location: "Warehouse",
+      timestamp: new Date(),
+      description: getStatusDescription(this.status)
+    };
+    
+    // Add to tracking details
+    if (!this.trackingDetails) {
+      this.trackingDetails = [];
+    }
+    
+    this.trackingDetails.push(newStatus);
+  }
+  next();
+});
+
+function getStatusDescription(status) {
+  const descriptions = {
+    "Placed": "Order has been placed successfully",
+    "Processing": "Order is being processed at our warehouse",
+    "Shipped": "Order has been shipped and is on the way",
+    "Out for Delivery": "Order is out for delivery and will be delivered today",
+    "Delivered": "Order has been delivered successfully",
+    "Cancelled": "Order has been cancelled"
+  };
+  
+  return descriptions[status] || "Status updated";
+}
 
 module.exports = mongoose.model("Order", orderSchema);

@@ -88,18 +88,33 @@ const Home = () => {
       <section className="container my-5">
         <h2 className="mb-4">All Products</h2>
         <div className="row">
-          {products.map(product => (
-            <div className="col-sm-6 col-md-4 col-lg-3 mb-4" key={product._id}>
-              <div className="card h-100">
-                <img src={product.image} className="card-img-top" alt={product.name} />
-                <div className="card-body d-flex flex-column justify-content-between">
-                  <h5 className="card-title">{product.name}</h5>
-                  <p className="card-text">₹{product.price}</p>
-                  <Link to={`/product/${product._id}`} className="btn btn-primary mt-auto">View</Link>
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map(product => (
+              <div className="col-sm-6 col-md-4 col-lg-3 mb-4" key={product._id}>
+                <div className="card h-100">
+                  <img src={product.image} className="card-img-top" alt={product.name} />
+                  <div className="card-body d-flex flex-column justify-content-between">
+                    <h5 className="card-title">{product.name}</h5>
+                    <p className="card-text">₹{product.price}</p>
+                    <Link to={`/product/${product._id}`} className="btn btn-primary mt-auto">View</Link>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : searchTerm ? (
+            <div className="col-12 text-center py-5">
+              <h3>No products match your search</h3>
+              <p>Try a different search term or browse all products below.</p>
+              <button className="btn btn-outline-primary" onClick={() => setSearchTerm('')}>
+                Show All Products
+              </button>
             </div>
-          ))}
+          ) : (
+            <div className="col-12 text-center py-5">
+              <h3>No products available</h3>
+              <p>Check back later for new products.</p>
+            </div>
+          )}
         </div>
       </section>
 

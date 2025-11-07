@@ -55,16 +55,33 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     
+    // Create a consistent user object
+    const normalizedUser = {
+      ...userData
+    };
+    
     // Ensure user data has consistent ID format
-    if (!userData._id && userData.id) {
-      userData._id = userData.id;
+    if (!normalizedUser._id && normalizedUser.id) {
+      normalizedUser._id = normalizedUser.id;
+      console.log("Added _id from id property");
+    } else if (!normalizedUser.id && normalizedUser._id) {
+      normalizedUser.id = normalizedUser._id;
+      console.log("Added id from _id property");
     }
     
-    console.log("Setting user in context:", userData);
-    setUser(userData);
+    // Ensure IDs are strings
+    if (normalizedUser._id) {
+      normalizedUser._id = normalizedUser._id.toString();
+    }
+    if (normalizedUser.id) {
+      normalizedUser.id = normalizedUser.id.toString();
+    }
+    
+    console.log("Setting user in context:", normalizedUser);
+    setUser(normalizedUser);
     
     try {
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
     } catch (error) {
       console.error("Error storing user in localStorage:", error);
     }

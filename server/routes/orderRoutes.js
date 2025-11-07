@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { placeOrder, getOrdersByUser, cancelOrder, trackOrder } = require("../controllers/orderController");
+const { placeOrder, getOrdersByUser, cancelOrder, trackOrder, getOrderById, updateOrderStatus } = require("../controllers/orderController");
 const { protect, admin } = require("../middleware/authMiddleware");
 const Order = require("../models/Order");
 
@@ -10,17 +10,14 @@ router.use(protect);
 // POST /api/orders/ - place an order
 router.post("/", placeOrder);
 
-// GET /api/orders/:userId - get user's orders
-router.get("/:userId", getOrdersByUser);
+// GET /api/orders/:id - get a specific order by ID
+router.get("/:id", getOrderById);
 
-// PUT /api/orders/:orderId/cancel - cancel an order
-router.put('/:orderId/cancel', cancelOrder);
+// PUT /api/orders/:id/status - update order status (admin only)
+router.put("/:id/status", admin, updateOrderStatus);
 
-// GET /api/orders/:orderId/track - track an order
-router.get('/:orderId/track', trackOrder);
-
-// GET /api/orders/user/:userId - get user's orders (alternative endpoint)
-router.get('/user/:userId', async (req, res) => {
+// GET /api/orders/user/:userId - get user's orders
+router.get("/user/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
     
@@ -38,5 +35,11 @@ router.get('/user/:userId', async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+// PUT /api/orders/:orderId/cancel - cancel an order
+router.put('/:orderId/cancel', cancelOrder);
+
+// GET /api/orders/:orderId/track - track an order
+router.get('/:orderId/track', trackOrder);
 
 module.exports = router;

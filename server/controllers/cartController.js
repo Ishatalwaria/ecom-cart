@@ -5,13 +5,28 @@ const mongoose = require('mongoose');
 exports.addToCart = async (req, res) => {
   let { userId, productId, quantity } = req.body;
 
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ message: "Invalid userId" });
+  // Check for required fields
+  if (!userId || !productId) {
+    return res.status(400).json({ message: "Missing required fields: userId and productId" });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(productId)) {
-    return res.status(400).json({ message: "Invalid productId" });
+  // Validate userId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid userId format" });
   }
+
+  // Validate productId
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    return res.status(400).json({ message: "Invalid productId format" });
+  }
+
+  // Authorize the request
+  if (req.user && req.user._id.toString() !== userId && !req.user.isAdmin) {
+    return res.status(403).json({ message: "Not authorized to modify this cart" });
+  }
+
+  // Ensure quantity is valid
+  quantity = Math.max(1, quantity || 1);
 
   try {
     // First, get the product details
@@ -72,7 +87,6 @@ exports.addToCart = async (req, res) => {
     await cart.save();
     
     // No need to populate since we're storing all details directly
-    console.log("Saved cart:", JSON.stringify(cart));
     res.status(200).json(cart);
   } catch (err) {
     console.error("Error in addToCart:", err);
@@ -83,9 +97,20 @@ exports.addToCart = async (req, res) => {
 exports.getCart = async (req, res) => {
   const { userId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ message: "Invalid userId" });
+  // Validate userId
+  if (!userId) {
+    return res.status(400).json({ message: "Missing userId parameter" });
   }
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid userId format" });
+  }
+
+  // Compare with authenticated user
+  if (req.user && req.user._id.toString() !== userId && !req.user.isAdmin) {
+    return res.status(403).json({ message: "Not authorized to access this cart" });
+  }
+
   try {
     // No need to populate since we store full product details
     const cart = await Cart.findOne({ userId });
@@ -104,13 +129,30 @@ exports.getCart = async (req, res) => {
 exports.removeItem = async (req, res) => {
   const { userId, productId } = req.body;
 
-  if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(productId)) {
-    return res.status(400).json({ message: "Invalid userId or productId" });
+  // Check required fields
+  if (!userId || !productId) {
+    return res.status(400).json({ message: "Missing required fields: userId and productId" });
+  }
+
+  // Validate IDs
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid userId format" });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    return res.status(400).json({ message: "Invalid productId format" });
+  }
+
+  // Authorize the request
+  if (req.user && req.user._id.toString() !== userId && !req.user.isAdmin) {
+    return res.status(403).json({ message: "Not authorized to modify this cart" });
   }
 
   try {
     const cart = await Cart.findOne({ userId });
-    if (!cart) return res.status(404).json({ message: "Cart not found" });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
 
     // Remove the product from cart
     cart.products = cart.products.filter(p => p.productId.toString() !== productId);
@@ -127,13 +169,26 @@ exports.removeItem = async (req, res) => {
 exports.clearCart = async (req, res) => {
   const { userId } = req.body;
 
+  // Check required field
+  if (!userId) {
+    return res.status(400).json({ message: "Missing required field: userId" });
+  }
+
+  // Validate userId
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ message: "Invalid userId" });
+    return res.status(400).json({ message: "Invalid userId format" });
+  }
+  
+  // Authorize the request
+  if (req.user && req.user._id.toString() !== userId && !req.user.isAdmin) {
+    return res.status(403).json({ message: "Not authorized to modify this cart" });
   }
   
   try {
     const cart = await Cart.findOne({ userId });
-    if (!cart) return res.status(404).json({ message: "Cart not found" });
+    if (!cart) {
+      return res.json({ message: "Cart is already empty", cart: { userId, products: [] } });
+    }
 
     cart.products = [];
     await cart.save();

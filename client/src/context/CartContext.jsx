@@ -4,7 +4,7 @@ import { useAuth } from "./AuthContext";
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,24 +14,21 @@ export const CartProvider = ({ children }) => {
     console.log("AUTH USER DATA:", user);
   }, [user]);
   
-  // Get userId directly from localStorage if not available from context
+  // Get authentication token
+  const getAuthHeader = () => {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
+  
+  // Get userId from auth context or localStorage
   const getUserId = () => {
     // Try from auth context first
     if (user && user._id) {
-      console.log("Using user ID from auth context:", user._id);
-      return user._id;
+      return user._id.toString();
     }
     
     if (user && user.id) {
-      console.log("Using user.id from auth context:", user.id);
-      return user.id;
-    }
-    
-    // Direct check of localStorage for userId (often set during login)
-    const directUserId = localStorage.getItem('userId');
-    if (directUserId) {
-      console.log("Found direct userId in localStorage:", directUserId);
-      return directUserId;
+      return user.id.toString();
     }
     
     // Fallback to user object in localStorage
@@ -39,24 +36,20 @@ export const CartProvider = ({ children }) => {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
-        console.log("Using localStorage user:", parsedUser);
         
         // Try different ID formats
         if (parsedUser._id) {
-          console.log("Found _id in localStorage:", parsedUser._id);
-          return parsedUser._id;
+          return parsedUser._id.toString();
         }
         
         if (parsedUser.id) {
-          console.log("Found id in localStorage:", parsedUser.id);
-          return parsedUser.id;
+          return parsedUser.id.toString();
         }
       }
     } catch (err) {
       console.error("Error parsing user from localStorage:", err);
     }
     
-    console.error("COULD NOT FIND USER ID IN ANY LOCATION");
     return null;
   };
   
@@ -70,26 +63,26 @@ export const CartProvider = ({ children }) => {
     const currentUserId = getUserId();
     
     if (!currentUserId) {
-      console.warn("User ID not found for fetching cart.");
-      setError("Please log in to view your cart");
+      console.log("User not authenticated, skipping cart fetch");
+      setCart([]);
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
-      console.log("Fetching cart for user:", currentUserId);
       
-      const res = await axios.get(`http://localhost:5000/api/cart/${currentUserId}`);
-      console.log("Cart response:", res.data);
+      const res = await axios.get(`http://localhost:5000/api/cart/${currentUserId}`, {
+        headers: getAuthHeader()
+      });
+      
+      console.log("Cart fetched successfully:", res.data);
       
       if (!res.data || !res.data.products) {
-        console.error("Invalid cart data format:", res.data);
         setCart([]);
         return;
       }
       
-      // With the updated model, we can just use the product details directly
       setCart(res.data.products.map(item => ({
         _id: item.productId, // Keep _id as the productId for consistency
         name: item.name,
@@ -102,7 +95,7 @@ export const CartProvider = ({ children }) => {
       })));
     } catch (error) {
       console.error("Fetch cart failed:", error);
-      setError("Failed to fetch cart. Please try again.");
+      setError("Failed to fetch cart");
       setCart([]);
     } finally {
       setLoading(false);
@@ -132,11 +125,16 @@ export const CartProvider = ({ children }) => {
       const existingProduct = cart.find(item => item._id === product._id);
       const quantity = existingProduct ? existingProduct.quantity + 1 : 1;
       
-      const response = await axios.post("http://localhost:5000/api/cart/add", {
-        userId: currentUserId,
-        productId: product._id,
-        quantity: quantity
-      });
+      const response = await axios.post("http://localhost:5000/api/cart/add", 
+        {
+          userId: currentUserId,
+          productId: product._id,
+          quantity: quantity
+        },
+        { 
+          headers: getAuthHeader() 
+        }
+      );
       
       console.log("Add to cart response:", response.data);
       
@@ -193,11 +191,16 @@ export const CartProvider = ({ children }) => {
       );
       
       // Important: Use the updated cart endpoint with the exact quantity (not increment)
-      const response = await axios.post("http://localhost:5000/api/cart/add", {
-        userId: currentUserId,
-        productId,
-        quantity // This should REPLACE the quantity, not add to it
-      });
+      const response = await axios.post("http://localhost:5000/api/cart/add", 
+        {
+          userId: currentUserId,
+          productId,
+          quantity // This should REPLACE the quantity, not add to it
+        },
+        { 
+          headers: getAuthHeader() 
+        }
+      );
       
       console.log("Update quantity response:", response.data);
       
@@ -229,6 +232,7 @@ export const CartProvider = ({ children }) => {
       setCart(prevCart => prevCart.filter(item => item._id !== productId));
       
       const response = await axios.delete("http://localhost:5000/api/cart/remove", {
+        headers: getAuthHeader(),
         data: { userId: currentUserId, productId }
       });
       
@@ -263,9 +267,11 @@ export const CartProvider = ({ children }) => {
       // Clear locally first for better UX
       setCart([]);
       
-      const response = await axios.post("http://localhost:5000/api/cart/clear", { 
-        userId: currentUserId 
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/cart/clear", 
+        { userId: currentUserId },
+        { headers: getAuthHeader() }
+      );
       
       console.log("Clear cart response:", response.data);
     } catch (err) {
@@ -278,18 +284,20 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // Update effect to wait for authentication to complete and run only when needed
   useEffect(() => {
-    const currentUserId = getUserId();
-    console.log("Current user ID for cart:", currentUserId);
+    // Skip if auth is still loading
+    if (authLoading) {
+      return;
+    }
     
+    const currentUserId = getUserId();
     if (currentUserId) {
-      console.log("User ID available, fetching cart for:", currentUserId);
       fetchCart();
     } else {
-      console.log("No user ID available, cart will be empty");
       setCart([]);
     }
-  }, [user]); // Only depend on user object to avoid excessive fetching
+  }, [user, authLoading]); // Add authLoading as dependency
 
   return (
     <CartContext.Provider
