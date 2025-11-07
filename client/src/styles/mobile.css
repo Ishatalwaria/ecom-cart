@@ -1,0 +1,194 @@
+/* Mobile-specific styles and overrides */
+
+/* Extra Small Devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+  .container {
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+  }
+  
+  h1, .h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2, .h2 {
+    font-size: 1.5rem;
+  }
+  
+  .section {
+    padding: var(--spacing-lg) 0;
+  }
+  
+  .section-title {
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  /* Mobile navbar adjustments */
+  .navbar {
+    padding: var(--spacing-sm);
+  }
+  
+  .navbar-collapse {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    width: 100%;
+    height: auto;
+    background-color: var(--primary);
+    padding: var(--spacing-md);
+    z-index: var(--z-dropdown);
+    box-shadow: var(--shadow);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-speed) var(--transition-easing);
+  }
+  
+  .navbar-collapse.show {
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+  
+  .navbar-nav {
+    flex-direction: column;
+  }
+  
+  .navbar-nav .nav-item {
+    margin: var(--spacing-xs) 0;
+  }
+  
+  /* Product grid adjustments */
+  .products-grid {
+    gap: var(--spacing-sm);
+  }
+  
+  .product-card .product-img {
+    height: 150px;
+  }
+  
+  /* Cart adjustments */
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .cart-item img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    margin-bottom: var(--spacing-sm);
+    margin-right: 0;
+  }
+  
+  /* Form adjustments */
+  .form-control {
+    padding: 0.5rem;
+  }
+  
+  .hero-section {
+    min-height: 40vh;
+  }
+  
+  .hero-title {
+    font-size: 1.75rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .hero-buttons .btn {
+    width: 100%;
+    margin: var(--spacing-xs) 0;
+  }
+  
+  /* Toast adjustments for mobile */
+  .toast-container {
+    top: auto;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+  }
+}
+
+/* Small Devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .hero-section {
+    min-height: 50vh;
+  }
+  
+  .section {
+    padding: var(--spacing-xl) 0;
+  }
+}
+
+/* Medium Devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .hero-title {
+    font-size: 2.25rem;
+  }
+  
+  .hero-section {
+    min-height: 50vh;
+  }
+}
+
+/* Landscape Orientation for Mobile Devices */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-section {
+    min-height: 80vh;
+  }
+  
+  .navbar-collapse.show {
+    max-height: 80vh;
+  }
+}
+
+/* High-density screens (retina displays) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Optimize images for high-density displays */
+  .img-fluid {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Dark Theme Support with Media Query */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode variables will be automatically applied */
+  }
+}
+
+/* Print Styles */
+@media print {
+  .navbar, .footer, .product-actions, .toast-container {
+    display: none !important;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  body {
+    background-color: white;
+    color: black;
+  }
+  
+  a {
+    text-decoration: none;
+    color: black;
+  }
+  
+  .product-detail-img {
+    max-height: 300px;
+  }
+  
+  .section {
+    padding: 0;
+  }
+} 

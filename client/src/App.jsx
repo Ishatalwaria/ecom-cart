@@ -11,6 +11,7 @@ import Orders from './pages/Orders'
 import Checkout from './pages/Checkout'
 import Profile from './pages/Profile'
 import Admin from './pages/Admin'
+import Contact from './pages/Contact'
 import PrivateRoute from './components/PrivateRoute'
 
 const App = () => {
@@ -30,7 +31,8 @@ const App = () => {
         <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
-        <Route path="/product/:id" element={<ProductDetail />} />  
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </>
   );

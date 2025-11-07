@@ -1,0 +1,108 @@
+:root {
+  /* Primary Color Palette */
+  --primary: #6a5acd;         /* Slate Blue - Main brand color */
+  --primary-dark: #5a4abf;    /* Darker shade for hover effects */
+  --primary-light: #bbb5e9;   /* Lighter shade for backgrounds */
+  --primary-ultralight: #f0eeff; /* Very light shade for subtle backgrounds */
+
+  /* Secondary Color */
+  --secondary: #ff7f50;       /* Coral - For accents and highlights */
+  --secondary-dark: #e66c40;  /* Darker shade for hover effects */
+  --secondary-light: #ffb59e; /* Lighter shade for backgrounds */
+
+  /* Neutrals */
+  --dark: #2c3e50;            /* Dark text and borders */
+  --gray-dark: #495057;       /* Dark gray */
+  --gray: #6c757d;            /* Medium gray */
+  --gray-light: #adb5bd;      /* Light gray */
+  --light: #f8f9fa;           /* Light backgrounds */
+  --white: #ffffff;           /* White */
+
+  /* Semantic Colors */
+  --success: #28a745;         /* Success color */
+  --info: #17a2b8;            /* Information color */
+  --warning: #ffc107;         /* Warning color */
+  --danger: #dc3545;          /* Error/Danger color */
+
+  /* Typography */
+  --font-family: 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size-base: 1rem;      /* Base font size */
+  --font-size-sm: 0.875rem;    /* Small font size */
+  --font-size-lg: 1.25rem;     /* Large font size */
+  --font-size-xl: 1.5rem;      /* Extra large font size */
+  --font-size-xxl: 2rem;       /* Double extra large font size */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --line-height: 1.5;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;      /* 4px */
+  --spacing-sm: 0.5rem;       /* 8px */
+  --spacing-md: 1rem;         /* 16px */
+  --spacing-lg: 1.5rem;       /* 24px */
+  --spacing-xl: 2rem;         /* 32px */
+  --spacing-xxl: 3rem;        /* 48px */
+
+  /* Border Radius */
+  --border-radius-sm: 0.25rem;   /* Small border radius */
+  --border-radius: 0.5rem;       /* Default border radius */
+  --border-radius-lg: 0.75rem;   /* Large border radius */
+  --border-radius-xl: 1rem;      /* Extra large border radius */
+  --border-radius-pill: 50rem;   /* Pill shape */
+
+  /* Shadows */
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+
+  /* Transitions */
+  --transition-speed: 0.3s;
+  --transition-easing: ease;
+
+  /* Z-Index Layers */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* Container Max Widths */
+  --container-sm: 540px;
+  --container-md: 720px;
+  --container-lg: 960px;
+  --container-xl: 1140px;
+  --container-xxl: 1320px;
+}
+
+/* Dark Theme Variables (for future implementation) */
+.dark-theme {
+  --primary: #8a7aed;
+  --primary-dark: #7a6adf;
+  --primary-light: #cbc5f9;
+  --primary-ultralight: #201e2f;
+  
+  --secondary: #ff9f70;
+  --secondary-dark: #f68c60;
+  --secondary-light: #ffc5ae;
+  
+  --dark: #e9ecef;
+  --gray-dark: #ced4da;
+  --gray: #adb5bd;
+  --gray-light: #6c757d;
+  --light: #2c3e50;
+  --white: #212529;
+}
+
+/* Responsive Breakpoints for reference */
+/* 
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-xxl: 1400px;
+*/ 
