@@ -1,15 +1,33 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import './Navbar.css'
 
 const Navbar = () => {
   const { cart } = useCart();
-  const { user, logout, loading } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   
   // Calculate total items in cart - only when user is authenticated
   const totalItems = user ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
+  
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -18,77 +36,126 @@ const Navbar = () => {
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
   
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
       <div className="container">
-        <Link className="navbar-brand" to="/" onClick={closeMenu}>
-          ShopMate
+        <Link to="/" className="navbar-brand">
+          <i className="fas fa-store"></i>
+          ShopEase
         </Link>
         
         <button 
-          className="navbar-toggler d-md-none"
+          className="navbar-toggler"
           type="button" 
           onClick={toggleMenu}
+          aria-label="Toggle navigation"
         >
-          {isMenuOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-              <path fillRule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-            </svg>
-          )}
+          <span className="navbar-toggler-icon"></span>
         </button>
         
         <div className={`navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
           <ul className="navbar-nav">
             <li className="nav-item">
-              <Link className="nav-link" to="/" onClick={closeMenu}>Home</Link>
+              <Link 
+                to="/" 
+                className={`nav-link ${isActive('/') ? 'active' : ''}`} 
+                onClick={closeMenu}
+              >
+                <i className="fas fa-home"></i>
+                <span>Home</span>
+              </Link>
             </li>
             
             {user ? (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link position-relative" to="/cart" onClick={closeMenu}>
-                    Cart
+                  <Link 
+                    to="/orders" 
+                    className={`nav-link ${isActive('/orders') ? 'active' : ''}`} 
+                    onClick={closeMenu}
+                  >
+                    <i className="fas fa-box"></i>
+                    <span>Orders</span>
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link 
+                    to="/cart" 
+                    className={`nav-link ${isActive('/cart') ? 'active' : ''}`} 
+                    onClick={closeMenu}
+                  >
+                    <i className="fas fa-shopping-cart"></i>
+                    <span>Cart</span>
                     {totalItems > 0 && (
-                      <span className="badge badge-secondary badge-pill position-absolute top-0 start-100 translate-middle">
+                      <span className="cart-badge">
                         {totalItems}
                       </span>
                     )}
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/orders" onClick={closeMenu}>Orders</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/profile" onClick={closeMenu}>Profile</Link>
+                  <Link 
+                    to="/profile" 
+                    className={`nav-link ${isActive('/profile') ? 'active' : ''}`} 
+                    onClick={closeMenu}
+                  >
+                    <i className="fas fa-user"></i>
+                    <span>Profile</span>
+                  </Link>
                 </li>
                 {user.isAdmin && (
                   <li className="nav-item">
-                    <Link className="nav-link" to="/admin" onClick={closeMenu}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-gear-fill me-1" viewBox="0 0 16 16">
-                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
-                      </svg>
-                      Admin
+                    <Link 
+                      to="/admin" 
+                      className={`nav-link ${isActive('/admin') ? 'active' : ''}`} 
+                      onClick={closeMenu}
+                    >
+                      <i className="fas fa-cog"></i>
+                      <span>Admin</span>
                     </Link>
                   </li>
                 )}
                 <li className="nav-item">
-                  <button className="nav-link btn btn-link" onClick={() => { logout(); closeMenu(); }}>
-                    Logout
-                  </button>
+                  <Link 
+                    to="#" 
+                    className="nav-link logout-link" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleLogout();
+                      closeMenu();
+                    }}
+                  >
+                    <i className="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                  </Link>
                 </li>
               </>
             ) : (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/login" onClick={closeMenu}>Login</Link>
+                  <Link 
+                    to="/login" 
+                    className={`nav-link ${isActive('/login') ? 'active' : ''}`} 
+                    onClick={closeMenu}
+                  >
+                    <i className="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/register" onClick={closeMenu}>Register</Link>
+                  <Link 
+                    to="/register" 
+                    className={`nav-link ${isActive('/register') ? 'active' : ''}`} 
+                    onClick={closeMenu}
+                  >
+                    <i className="fas fa-user-plus"></i>
+                    <span>Register</span>
+                  </Link>
                 </li>
               </>
             )}

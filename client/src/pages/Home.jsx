@@ -6,7 +6,6 @@ import { getImageUrl } from '../utils/imageUtils'
 
 const Home = () => {
   const [products, setProducts] = useState([])
-  const [featuredProducts, setFeaturedProducts] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -32,56 +31,6 @@ const Home = () => {
       setSearchTerm(searchFromUrl)
     }
   }, [searchParams])
-  
-  // Fetch all products for featured section - independent of filters
-  useEffect(() => {
-    const fetchFeaturedProducts = async () => {
-      try {
-        const res = await axios.get('http://localhost:5000/api/products')
-        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-          // Get 3 random products for featured section
-          const randomProducts = [...res.data].sort(() => 0.5 - Math.random()).slice(0, 3)
-          setFeaturedProducts(randomProducts)
-          console.log('Featured products loaded:', randomProducts)
-        } else {
-          console.log('No products returned from API, setting default featured products')
-          setDefaultFeaturedProducts()
-        }
-      } catch (err) {
-        console.error('Error fetching featured products:', err)
-        setDefaultFeaturedProducts()
-      }
-    }
-    
-    const setDefaultFeaturedProducts = () => {
-      // Set default products with placeholders if API fails
-      setFeaturedProducts([
-        {
-          _id: 'sample1',
-          name: 'Premium Headphones',
-          price: 2999,
-          description: 'High-quality wireless headphones with noise cancellation',
-          image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=684&q=80'
-        },
-        {
-          _id: 'sample2',
-          name: 'Stylish Watch',
-          price: 1499,
-          description: 'Classic design with modern features',
-          image: 'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80'
-        },
-        {
-          _id: 'sample3',
-          name: 'Smartphone',
-          price: 15999,
-          description: 'Latest model with advanced camera system',
-          image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=727&q=80'
-        }
-      ])
-    }
-    
-    fetchFeaturedProducts()
-  }, [])
   
   // Fetch products with filtering
   const fetchProducts = async () => {
@@ -181,11 +130,11 @@ const Home = () => {
     <div className="home-page fade-in">
       {/* Hero Banner */}
       <section className="hero-section" style={{ 
-        backgroundImage: "url('bghome.jpg')",
+        backgroundImage: "url('/front.jpg')",
         backgroundPosition: "center",
-        backgroundSize: "cover"
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat"
       }}>
-        <div className="hero-overlay"></div>
         <div className="hero-content">
           <h1 className="hero-title">Welcome to ShopMate</h1>
           <p className="hero-subtitle">Discover amazing products with great deals</p>
@@ -197,12 +146,17 @@ const Home = () => {
       </section>
 
       {/* Orders Shortcut */}
-      <section className="section section-dark">
+      <section className="section section-light" style={{
+        backgroundImage: "url('/shopping-vertical-background_23-2150409471.avif')",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat"
+      }}>
         <div className="container">
           <div className="text-center">
             <h2 className="section-title">Track Your Orders</h2>
             <p>Keep track of all your purchases in one place</p>
-            <Link to="/orders" className="btn btn-outline-primary btn-lg">
+            <Link to="/orders" className="btn btn-primary btn-lg">
               <i className="bi bi-box-seam me-2"></i> My Orders
             </Link>
           </div>
@@ -270,13 +224,18 @@ const Home = () => {
       )}
 
       {/* Categories */}
-      <section className="section">
+      <section className="section" style={{
+        backgroundImage: "url('/composition-black-friday-shopping-cart-with-copy-space_23-2148667046.avif')",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat"
+      }}>
         <div className="container">
           <h2 className="section-title">Shop by Category</h2>
           <div className="grid grid-2 grid-md-3 grid-lg-5 text-center">
             {['Electronics', 'Clothing', 'Home', 'Beauty', 'Sports'].map((category, i) => (
               <div 
-                className={`category-box p-3 rounded shadow-sm ${currentCategory === category ? 'bg-primary text-white' : 'bg-light'}`}
+                className={`category-box p-3 rounded shadow-sm ${currentCategory === category ? 'bg-primary text-white' : 'bg-white'}`}
                 onClick={() => handleCategoryClick(category)}
                 key={i}
               >
@@ -288,43 +247,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="section section-primary">
-        <div className="container">
-          <h2 className="section-title">Featured Products</h2>
-          <div className="grid grid-1 grid-md-3 stagger-children">
-            {featuredProducts.length > 0 ? (
-              featuredProducts.map(product => (
-                <div className="product-card" key={product._id}>
-                  <img 
-                    src={getImageUrl(product.image)} 
-                    className="product-img" 
-                    alt={product.name} 
-                  />
-                  <div className="product-body">
-                    <h3 className="product-title">{product.name}</h3>
-                    <p className="product-price">₹{product.price}</p>
-                    <p className="product-description">{product.description ? product.description.substring(0, 60) + '...' : ''}</p>
-                    <div className="btn-container">
-                      <Link to={`/product/${product._id}`} className="btn btn-primary w-100">View Details</Link>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-12 text-center text-white">
-                <div className="spinner-border text-light" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-                <p className="mt-3">Loading featured products...</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
       {/* All Products */}
-      <section className="section">
+      <section className="section" style={{
+        backgroundImage: "url('/young-women-takes-a-shopping-cart-and-enjoy-online-shopping-through-smartphones-choose-to-buy-gifts-valentine-s-day-concepts-website-or-mobile-phone-application-flat-design-illustrati.jpg')",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat"
+      }}>
         <div className="container">
           <h2 className="section-title">
             {currentCategory ? `${currentCategory} Products` : 'All Products'}
@@ -346,7 +275,7 @@ const Home = () => {
             <>
               {products.length === 0 ? (
                 <div className="text-center py-5">
-                  <i className="bi bi-exclamation-circle fs-1 text-muted"></i>
+                  <i className="bi bi-exclamation-circle fs-1"></i>
                   <p className="mt-3">No products found. Try a different search or category.</p>
                   <button className="btn btn-primary" onClick={clearFilters}>
                     Clear Filters
@@ -355,7 +284,7 @@ const Home = () => {
               ) : (
                 <div className="products-grid">
                   {products.map(product => (
-                    <div className="product-card" key={product._id}>
+                    <div className="product-card bg-white shadow-lg" key={product._id}>
                       <img 
                         src={getImageUrl(product.image)} 
                         className="product-img" 
@@ -379,25 +308,30 @@ const Home = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="section section-dark">
+      <section className="section section-light" style={{
+        backgroundImage: "url('/65c0eb71b601d51ecda40895_E-commerce-Pitfalls-Mistakes-to-Avoid-as-a-Small-Business-Owner.jpeg')",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat"
+      }}>
         <div className="container">
           <h2 className="section-title">What Our Customers Say</h2>
           <div className="grid grid-1 grid-md-3 gap-4">
-            <div className="card p-4 text-center">
+            <div className="card p-4 text-center bg-white shadow-lg">
               <div className="mb-3">
                 <span className="fs-1 text-warning">★★★★★</span>
               </div>
               <p className="card-text">"Excellent quality products and fast delivery. Will definitely shop again!"</p>
               <p className="fw-bold mb-0">- Amit S.</p>
             </div>
-            <div className="card p-4 text-center">
+            <div className="card p-4 text-center bg-white shadow-lg">
               <div className="mb-3">
                 <span className="fs-1 text-warning">★★★★★</span>
               </div>
               <p className="card-text">"Great customer service and the return process was so easy. Loved shopping here."</p>
               <p className="fw-bold mb-0">- Priya M.</p>
             </div>
-            <div className="card p-4 text-center">
+            <div className="card p-4 text-center bg-white shadow-lg">
               <div className="mb-3">
                 <span className="fs-1 text-warning">★★★★★</span>
               </div>
