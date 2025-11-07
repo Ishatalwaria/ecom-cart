@@ -43,7 +43,7 @@ export const WishlistProvider = ({ children }) => {
         return;
       }
       
-      const response = await axios.get('http://localhost:5000/api/wishlist', {
+      const response = await axios.get('https://shop-mate-ecommerce.onrender.com/api/wishlist', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -76,7 +76,7 @@ export const WishlistProvider = ({ children }) => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/wishlist',
+        'https://shop-mate-ecommerce.onrender.com/api/wishlist',
         { productId: product._id },
         {
           headers: {
@@ -102,7 +102,7 @@ export const WishlistProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('token');
       
-      await axios.delete(`http://localhost:5000/api/wishlist/${productId}`, {
+      await axios.delete(`https://shop-mate-ecommerce.onrender.com/api/wishlist/${productId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

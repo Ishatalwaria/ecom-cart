@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         
         // Try to verify token with the server
         try {
-          const response = await axios.get('http://localhost:5000/api/auth/verify-token', {
+          const response = await axios.get('https://shop-mate-ecommerce.onrender.com/api/auth/verify-token', {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
         return false;
       }
 
-      const response = await axios.get('http://localhost:5000/api/auth/verify-token', {
+      const response = await axios.get('https://shop-mate-ecommerce.onrender.com/api/auth/verify-token', {
         headers: {
           Authorization: `Bearer ${token}`
         }

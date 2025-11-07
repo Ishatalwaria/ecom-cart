@@ -25,7 +25,7 @@ const ReviewForm = ({ productId, onSuccess, onClose }) => {
       
       const token = localStorage.getItem('token');
       
-      const response = await axios.post('http://localhost:5000/api/reviews', {
+      const response = await axios.post('https://shop-mate-ecommerce.onrender.com/api/reviews', {
         productId,
         rating,
         comment

@@ -75,7 +75,7 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      const res = await axios.get(`http://localhost:5000/api/cart/${currentUserId}`, {
+      const res = await axios.get(`https://shop-mate-ecommerce.onrender.com/api/cart/${currentUserId}`, {
         headers: getAuthHeader()
       });
       
@@ -130,7 +130,7 @@ export const CartProvider = ({ children }) => {
       const existingProduct = cart.find(item => item._id === product._id);
       const quantity = existingProduct ? existingProduct.quantity + 1 : 1;
       
-      const response = await axios.post("http://localhost:5000/api/cart/add", 
+      const response = await axios.post("https://shop-mate-ecommerce.onrender.com/api/cart/add", 
         {
           userId: currentUserId,
           productId: product._id,
@@ -204,7 +204,7 @@ export const CartProvider = ({ children }) => {
       );
       
       // Important: Use the updated cart endpoint with the exact quantity (not increment)
-      const response = await axios.post("http://localhost:5000/api/cart/add", 
+      const response = await axios.post("https://shop-mate-ecommerce.onrender.com/api/cart/add", 
         {
           userId: currentUserId,
           productId,
@@ -251,7 +251,7 @@ export const CartProvider = ({ children }) => {
       // Update locally first for better UX
       setCart(prevCart => prevCart.filter(item => item._id !== productId));
       
-      const response = await axios.delete("http://localhost:5000/api/cart/remove", {
+      const response = await axios.delete("https://shop-mate-ecommerce.onrender.com/api/cart/remove", {
         headers: getAuthHeader(),
         data: { userId: currentUserId, productId }
       });
@@ -291,7 +291,7 @@ export const CartProvider = ({ children }) => {
       setCart([]);
       
       const response = await axios.post(
-        "http://localhost:5000/api/cart/clear", 
+        "https://shop-mate-ecommerce.onrender.com/api/cart/clear", 
         { userId: currentUserId },
         { headers: getAuthHeader() }
       );
