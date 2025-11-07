@@ -21,6 +21,9 @@ const productSchema = new mongoose.Schema({
   image: {
     type: String
   },
+  cloudinary_id: {
+    type: String
+  },
   countInStock: {
     type: Number,
     default: 0

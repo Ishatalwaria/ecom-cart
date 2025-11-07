@@ -113,7 +113,8 @@ const Admin = () => {
       category: '',
       image: '',
       countInStock: '',
-      _previewImage: null
+      _previewImage: null,
+      cloudinary_id: null
     });
     setIsEditing(false);
     setSelectedProduct(null);
@@ -127,7 +128,8 @@ const Admin = () => {
       description: product.description || '',
       category: product.category || '',
       image: product.image || '',
-      countInStock: product.countInStock || 0
+      countInStock: product.countInStock || 0,
+      cloudinary_id: product.cloudinary_id || null
     });
     setIsEditing(true);
   };
@@ -160,7 +162,9 @@ const Admin = () => {
       const productData = {
         ...productForm,
         price: parseFloat(productForm.price),
-        countInStock: parseInt(productForm.countInStock)
+        countInStock: parseInt(productForm.countInStock),
+        // Include cloudinary_id if it exists
+        cloudinary_id: productForm.cloudinary_id || null
       };
       
       if (isEditing && selectedProduct) {
@@ -236,7 +240,7 @@ const Admin = () => {
       
       const token = localStorage.getItem('token');
       
-      // Upload the image
+      // Upload the image to Cloudinary via our server endpoint
       const response = await axios.post(
         'http://localhost:5000/api/products/upload',
         formData,
@@ -248,14 +252,15 @@ const Admin = () => {
         }
       );
       
-      // Update the product form with the image path returned from server
+      // Update the product form with the image URL and Cloudinary ID returned from server
       if (response.data && response.data.imagePath) {
         setProductForm({
           ...productForm,
           image: response.data.imagePath,
-          _previewImage: null // Clear preview as we have the real path now
+          cloudinary_id: response.data.public_id, // Store Cloudinary ID
+          _previewImage: null // Clear preview as we have the real URL now
         });
-        setSuccess('Image uploaded successfully!');
+        setSuccess('Image uploaded successfully to Cloudinary!');
       }
     } catch (err) {
       setError('Failed to upload image: ' + (err.response?.data?.message || err.message));
