@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useCart } from '../context/CartContext'
 import './ProductDetail.css' // ✅ Import styles
 import { useAuth } from '../context/AuthContext'
+import { getImageUrl } from '../utils/imageUtils'
 
 const ProductDetail = () => {
   const { id } = useParams()
@@ -93,7 +94,11 @@ const ProductDetail = () => {
       {product ? (
         <div className="row align-items-center">
           <div className="col-md-6">
-            <img src={product.image} alt={product.name} className="img-fluid" />
+            <img 
+              src={getImageUrl(product.image)} 
+              alt={product.name} 
+              className="img-fluid" 
+            />
           </div>
           <div className="col-md-6">
             <h2 className="product-title">{product.name}</h2>

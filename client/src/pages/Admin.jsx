@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Admin.css';
+import { getImageUrl } from '../utils/imageUtils';
 
 const Admin = () => {
   const { user, loading } = useAuth();
@@ -111,7 +112,8 @@ const Admin = () => {
       description: '',
       category: '',
       image: '',
-      countInStock: ''
+      countInStock: '',
+      _previewImage: null
     });
     setIsEditing(false);
     setSelectedProduct(null);
@@ -200,6 +202,66 @@ const Admin = () => {
       fetchOrders();
     } catch (err) {
       setError('Failed to update order: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Show preview immediately
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // This will show a local preview while the image is being uploaded
+        setProductForm({
+          ...productForm,
+          _previewImage: reader.result // Use a temporary preview
+        });
+      };
+      reader.readAsDataURL(file);
+      
+      // Upload the image to the server
+      uploadImage(file);
+    }
+  };
+  
+  const uploadImage = async (file) => {
+    setError('');
+    setSuccess('');
+    setIsLoading(true);
+    
+    try {
+      // Create form data to send the file
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const token = localStorage.getItem('token');
+      
+      // Upload the image
+      const response = await axios.post(
+        'http://localhost:5000/api/products/upload',
+        formData,
+        { 
+          headers: { 
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}` 
+          } 
+        }
+      );
+      
+      // Update the product form with the image path returned from server
+      if (response.data && response.data.imagePath) {
+        setProductForm({
+          ...productForm,
+          image: response.data.imagePath,
+          _previewImage: null // Clear preview as we have the real path now
+        });
+        setSuccess('Image uploaded successfully!');
+      }
+    } catch (err) {
+      setError('Failed to upload image: ' + (err.response?.data?.message || err.message));
+      // Keep the preview but don't update the image field
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -329,15 +391,58 @@ const Admin = () => {
                       </div>
                       
                       <div className="mb-3">
-                        <label htmlFor="image" className="form-label">Image URL</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="image"
-                          name="image"
-                          value={productForm.image}
-                          onChange={handleProductFormChange}
-                        />
+                        <label htmlFor="image" className="form-label">Product Image</label>
+                        <div className="d-flex flex-column">
+                          {(productForm.image || productForm._previewImage) && (
+                            <div className="image-preview mb-2">
+                              {productForm._previewImage && (
+                                <div className="preview-badge">
+                                  <span className="badge bg-info">Preview</span>
+                                </div>
+                              )}
+                              <img 
+                                src={productForm._previewImage || getImageUrl(productForm.image)} 
+                                alt="Product preview" 
+                                style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain' }} 
+                              />
+                              {productForm.image && (
+                                <div className="mt-2">
+                                  <small className="text-muted">Image Path: {productForm.image}</small>
+                                  <br/>
+                                  <small className="text-muted">Full URL: {getImageUrl(productForm.image)}</small>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          <div className="input-group">
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="image"
+                              name="image"
+                              value={productForm.image}
+                              onChange={handleProductFormChange}
+                              placeholder="Image URL or upload an image"
+                            />
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary"
+                              onClick={() => document.getElementById('imageUpload').click()}
+                            >
+                              Browse...
+                            </button>
+                          </div>
+                          <input
+                            type="file"
+                            id="imageUpload"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={handleImageUpload}
+                          />
+                          <small className="form-text text-muted">
+                            Enter an image URL or upload a new image.
+                          </small>
+                        </div>
                       </div>
                       
                       <div className="mb-3">

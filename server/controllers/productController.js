@@ -2,6 +2,7 @@ const Product = require("../models/Product");
 
 exports.addProduct = async (req, res) => {
   try {
+    // Create product with the provided data
     const newProduct = await Product.create(req.body);
     res.status(201).json(newProduct);
   } catch (err) {
