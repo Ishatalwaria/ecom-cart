@@ -46,7 +46,7 @@ const Orders = () => {
       }
       
       const response = await axios.get(
-        `http://localhost:5000/api/orders/${id}`,
+        `https://shop-mate-ecommerce.onrender.com/api/orders/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
@@ -76,7 +76,7 @@ const Orders = () => {
       }
       
       const response = await axios.get(
-        `http://localhost:5000/api/orders/user/${userId}`,
+        `https://shop-mate-ecommerce.onrender.com/api/orders/user/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
@@ -99,7 +99,7 @@ const Orders = () => {
       }
       
       await axios.put(
-        `http://localhost:5000/api/orders/${id}/cancel`,
+        `https://shop-mate-ecommerce.onrender.com/api/orders/${id}/cancel`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -143,7 +143,7 @@ const Orders = () => {
       }
       
       const response = await axios.get(
-        `http://localhost:5000/api/orders/${id}/track`,
+        `https://shop-mate-ecommerce.onrender.com/api/orders/${id}/track`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       

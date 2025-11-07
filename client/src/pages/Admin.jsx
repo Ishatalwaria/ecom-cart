@@ -54,7 +54,7 @@ const Admin = () => {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get('https://shop-mate-ecommerce.onrender.com/api/products');
       setProducts(response.data);
     } catch (err) {
       showError('Failed to fetch products: ' + (err.response?.data?.message || err.message));
@@ -68,7 +68,7 @@ const Admin = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        'http://localhost:5000/api/admin/orders',
+        'https://shop-mate-ecommerce.onrender.com/api/admin/orders',
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setOrders(response.data);
@@ -84,7 +84,7 @@ const Admin = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        'http://localhost:5000/api/admin/users',
+        'https://shop-mate-ecommerce.onrender.com/api/admin/users',
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(response.data);
@@ -138,7 +138,7 @@ const Admin = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/admin/products/${productId}`,
+        `https://shop-mate-ecommerce.onrender.com/api/admin/products/${productId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       showSuccess('Product deleted successfully');
@@ -164,7 +164,7 @@ const Admin = () => {
       if (isEditing && selectedProduct) {
         // Update existing product
         await axios.put(
-          `http://localhost:5000/api/admin/products/${selectedProduct._id}`,
+          `https://shop-mate-ecommerce.onrender.com/api/admin/products/${selectedProduct._id}`,
           productData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -172,7 +172,7 @@ const Admin = () => {
       } else {
         // Create new product - Use admin endpoint instead of regular products endpoint
         await axios.post(
-          'http://localhost:5000/api/admin/products',
+          'https://shop-mate-ecommerce.onrender.com/api/admin/products',
           productData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -190,7 +190,7 @@ const Admin = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/admin/orders/${orderId}`,
+        `https://shop-mate-ecommerce.onrender.com/api/admin/orders/${orderId}`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -233,7 +233,7 @@ const Admin = () => {
       
       // Upload the image to Cloudinary via our server endpoint
       const response = await axios.post(
-        'http://localhost:5000/api/products/upload',
+        'https://shop-mate-ecommerce.onrender.com/api/products/upload',
         formData,
         { 
           headers: { 

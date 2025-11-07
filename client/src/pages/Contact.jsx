@@ -35,7 +35,7 @@ const Contact = () => {
     
     try {
       // Send message to server
-      await axios.post('http://localhost:5000/api/contact', formData)
+      await axios.post('https://shop-mate-ecommerce.onrender.com/api/contact', formData)
       
       showSuccess('Message sent successfully! We will get back to you soon.')
       

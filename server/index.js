@@ -26,7 +26,11 @@ mongoose.connect(process.env.MONGO_URI, {
 .catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware
-app.use(cors());
+app.use(cors(
+  {
+  origin: "https://myshopmatecommerce.netlify.app/", 
+  credentials: true
+  }));
 app.use(express.json());
 
 // Request logging middleware

@@ -99,6 +99,13 @@ const Checkout = () => {
       return;
     }
     
+    // Add options to get more accurate location
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0 // Force fresh location
+    };
+    
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
@@ -106,11 +113,12 @@ const Checkout = () => {
           
           // Use a reverse geocoding service to get address from coordinates
           const response = await axios.get(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1&zoom=18`
           );
           
           const addressData = response.data.address;
           
+          // Update form data with new location
           setFormData(prev => ({
             ...prev,
             address: addressData.road || addressData.pedestrian || '',
@@ -122,17 +130,33 @@ const Checkout = () => {
           }));
           
           setGettingLocation(false);
+          setSuccess('Location updated successfully!');
         } catch (err) {
           console.error('Error getting location details:', err);
-          setError('Failed to get location details. Please enter manually.');
+          setError('Failed to get location details. Please try again or enter manually.');
           setGettingLocation(false);
         }
       },
       (error) => {
         console.error('Geolocation error:', error);
-        setError(`Error getting location: ${error.message}`);
+        let errorMessage = 'Error getting location: ';
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += 'Please allow location access in your browser settings.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += 'Location information is unavailable.';
+            break;
+          case error.TIMEOUT:
+            errorMessage += 'Location request timed out.';
+            break;
+          default:
+            errorMessage += error.message;
+        }
+        setError(errorMessage);
         setGettingLocation(false);
-      }
+      },
+      options
     );
   };
 
@@ -218,7 +242,7 @@ const Checkout = () => {
 
       // Send the order data to the backend with the token
       const response = await axios.post(
-        'http://localhost:5000/api/orders', 
+        'https://shop-mate-ecommerce.onrender.com/api/orders', 
         orderData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

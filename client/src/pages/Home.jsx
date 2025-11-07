@@ -39,7 +39,7 @@ const Home = () => {
     
     try {
       // Build query parameters
-      let url = 'http://localhost:5000/api/products'
+      let url = 'https://shop-mate-ecommerce.onrender.com/api/products'
       const params = new URLSearchParams()
       
       // Get search and category from URL params

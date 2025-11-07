@@ -60,7 +60,7 @@ const ProductDetail = () => {
 
   // Fetch product data
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/products/${id}`)
+    axios.get(`https://shop-mate-ecommerce.onrender.com/api/products/${id}`)
       .then(res => {
         if (res.data) {
           setProduct(res.data)
@@ -89,17 +89,17 @@ const ProductDetail = () => {
     try {
       console.log("Making API call to fetch reviews");
       // Fetch reviews
-      const reviewsRes = await axios.get(`http://localhost:5000/api/reviews/product/${id}`);
+      const reviewsRes = await axios.get(`https://shop-mate-ecommerce.onrender.com/api/reviews/product/${id}`);
       console.log("Reviews data received:", reviewsRes.data);
       setReviews(reviewsRes.data);
       
       // Fetch review count
-      const countRes = await axios.get(`http://localhost:5000/api/reviews/count/${id}`);
+      const countRes = await axios.get(`https://shop-mate-ecommerce.onrender.com/api/reviews/count/${id}`);
       console.log("Review count received:", countRes.data);
       setReviewCount(countRes.data.count);
       
       // Fetch average rating
-      const ratingRes = await axios.get(`http://localhost:5000/api/reviews/rating/${id}`);
+      const ratingRes = await axios.get(`https://shop-mate-ecommerce.onrender.com/api/reviews/rating/${id}`);
       console.log("Average rating received:", ratingRes.data);
       setAverageRating(ratingRes.data.avgRating || 0);
     } catch (error) {

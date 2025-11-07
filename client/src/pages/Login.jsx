@@ -33,7 +33,7 @@ const Login = () => {
     
     try {
       console.log("Attempting login with:", { email });
-      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const res = await axios.post('https://shop-mate-ecommerce.onrender.com/api/auth/login', { email, password });
       
       if (!res.data || !res.data.token) {
         throw new Error('Invalid response from server');
