@@ -139,15 +139,16 @@ const Home = () => {
           <h1 className="hero-title">Welcome to ShopMate</h1>
           <p className="hero-subtitle">Discover amazing products with great deals</p>
           <div className="hero-buttons">
-            <Link to="/register" className="btn btn-secondary btn-lg hero-button">Register Now</Link>
+            <Link to="/register" className="btn btn-outline-light btn-lg hero-button">Register Now</Link>
             <Link to="/login" className="btn btn-outline-light btn-lg hero-button">Sign In</Link>
           </div>
         </div>
       </section>
+      
 
       {/* Orders Shortcut */}
       <section className="section section-light" style={{
-        backgroundImage: "url('/shopping-vertical-background_23-2150409471.avif')",
+        backgroundImage: "url('/65c0eb71b601d51ecda40895_E-commerce-Pitfalls-Mistakes-to-Avoid-as-a-Small-Business-Owner.jpeg')",
         backgroundPosition: "center",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat"
@@ -161,7 +162,7 @@ const Home = () => {
             </Link>
           </div>
         </div>
-      </section>
+      
 
       {/* Search Bar */}
       <div className="container mt-4">
@@ -222,10 +223,11 @@ const Home = () => {
           </div>
         </div>
       )}
-
+      </section>
+      {/*  */}
       {/* Categories */}
       <section className="section" style={{
-        backgroundImage: "url('/composition-black-friday-shopping-cart-with-copy-space_23-2148667046.avif')",
+        backgroundImage: "url('img2.avif')",
         backgroundPosition: "center",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat"
@@ -249,7 +251,7 @@ const Home = () => {
 
       {/* All Products */}
       <section className="section" style={{
-        backgroundImage: "url('/young-women-takes-a-shopping-cart-and-enjoy-online-shopping-through-smartphones-choose-to-buy-gifts-valentine-s-day-concepts-website-or-mobile-phone-application-flat-design-illustrati.jpg')",
+        backgroundImage: "url('/shopping-vertical-background_23-2150409471.avif')",
         backgroundPosition: "center",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat"
@@ -309,7 +311,7 @@ const Home = () => {
 
       {/* Testimonials */}
       <section className="section section-light" style={{
-        backgroundImage: "url('/65c0eb71b601d51ecda40895_E-commerce-Pitfalls-Mistakes-to-Avoid-as-a-Small-Business-Owner.jpeg')",
+        backgroundImage: "url('/customerfeed.avif')",
         backgroundPosition: "center",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat"

@@ -46,7 +46,7 @@ const Navbar = () => {
       <div className="container">
         <Link to="/" className="navbar-brand">
           <i className="fas fa-store"></i>
-          ShopEase
+         ShopMate
         </Link>
         
         <button 
